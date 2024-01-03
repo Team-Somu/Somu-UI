@@ -19,7 +19,7 @@ function App() {
   return (
     <>
       <Accordion>
-        <AccordionTrigger>test</AccordionTrigger>
+        <AccordionTrigger>test title trigger</AccordionTrigger>
         <AccordionContent>test content</AccordionContent>
       </Accordion>
       <div className='flex flex-col'>
