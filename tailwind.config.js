@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: false,
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     colors: {
@@ -25,6 +26,7 @@ export default {
       gray10: '#DEE2E6',
       gray11: '#F1F3F6',
       gray12: '#F6F8FB',
+      gray13: '#FFFFFF',
       red1: '#B90000',
       red2: '#D71308',
       red3: '#FA362B',
