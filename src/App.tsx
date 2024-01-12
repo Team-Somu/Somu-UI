@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 import { cn } from '@service';
-import { AccordionTrigger, Accordion, AccordionContent } from '@components';
+import { AccordionTrigger, Accordion, AccordionContent, AccordionItem } from '@components';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -18,9 +18,19 @@ function App() {
 
   return (
     <>
-      <Accordion>
-        <AccordionTrigger>test title trigger</AccordionTrigger>
-        <AccordionContent>test content</AccordionContent>
+      <Accordion type={'single'}>
+        <AccordionItem value={'test1'}>
+          <AccordionTrigger>test title trigger</AccordionTrigger>
+          <AccordionContent>
+            <p>test content</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value={'test2'}>
+          <AccordionTrigger>test title trigger 2</AccordionTrigger>
+          <AccordionContent>
+            <p>test content 2</p>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
       <div className='flex flex-col'>
         <div>

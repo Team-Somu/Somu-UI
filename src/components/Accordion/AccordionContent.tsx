@@ -1,41 +1,43 @@
-import { forwardRef, useEffect, useRef, useState } from 'react';
-import { AccordionProps } from './Accordion';
-import { useAccordionContext } from './AccordionContext';
+import React, { HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { cn } from '@/service';
+import { AccordionContentVariants } from './variants';
+import { VariantProps } from 'class-variance-authority';
+import { useAccordionItemContext } from './AccordionItemContext';
 
-interface AccordionContentProps extends AccordionProps {}
+interface AccordionContentProps
+  extends HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof AccordionContentVariants> {}
 
-const AccordionContent = forwardRef<HTMLDivElement, AccordionContentProps>((props, ref) => {
-  const { children } = props;
-  const { isOpen } = useAccordionContext();
+const AccordionContent: React.FC<AccordionContentProps> = (props) => {
+  const { children, size, className } = props;
+  const { collapsed } = useAccordionItemContext();
   const [contentHeight, setContentHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (contentRef.current) {
-      ref = contentRef;
-      setContentHeight(contentRef.current.scrollHeight);
-
+    if (contentRef.current && collapsed) {
       console.log(contentRef.current.scrollHeight);
-      console.log(contentRef.current.getBoundingClientRect().height);
+      setContentHeight(contentRef.current.scrollHeight);
     }
-  }, []);
+  }, [collapsed]);
 
   return (
     <div
       ref={contentRef}
-      {...props}
-      //   hidden={!isOpen}
-      className={cn(isOpen ? 'animate-collapsed-down' : 'animate-collapsed-up')}
+      className={cn(
+        collapsed ? 'animate-collapsed-down' : 'animate-collapsed-up',
+        'overflow-hidden bg-gray10 dark:bg-gray6',
+        className
+      )}
       style={{
         ['--content-height' as never]: `${contentHeight}px`,
-        // height: `${contentHeight}px`,
-        overflow: 'hidden',
       }}
     >
-      {children}
+      <div {...props} className={cn(AccordionContentVariants({ size }))}>
+        {children}
+      </div>
     </div>
   );
-});
+};
 
 export default AccordionContent;
