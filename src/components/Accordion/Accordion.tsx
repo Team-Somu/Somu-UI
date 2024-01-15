@@ -49,7 +49,11 @@ const Accordion: React.FC<AccordionProps> = (props) => {
     handleItemClose,
   };
 
-  return <AccordionContext.Provider value={provider}>{children}</AccordionContext.Provider>;
+  return (
+    <AccordionContext.Provider value={provider}>
+      <div>{children}</div>
+    </AccordionContext.Provider>
+  );
 };
 
 export default Accordion;
