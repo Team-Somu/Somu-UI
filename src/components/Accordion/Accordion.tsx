@@ -2,7 +2,17 @@
 import React, { useState } from 'react';
 import type { ComponentProps, FC } from 'react';
 import { AccordionContext } from './AccordionContext';
-export interface AccordionProps extends ComponentProps<'div'> {
+import { VariantProps } from 'class-variance-authority';
+import {
+  AccordionContentVariants,
+  AccordionItemVariants,
+  AccordionTriggerVariants,
+} from './variants';
+export interface AccordionProps
+  extends ComponentProps<'div'>,
+    VariantProps<typeof AccordionItemVariants>,
+    VariantProps<typeof AccordionTriggerVariants>,
+    VariantProps<typeof AccordionContentVariants> {
   arrowIcon?: FC<ComponentProps<'svg'>>;
   type?: 'single' | 'multiple';
   handleItemOpen?(value: string[] | string): void;

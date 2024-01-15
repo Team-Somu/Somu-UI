@@ -9,15 +9,22 @@ export interface AccordionTriggerProps
     VariantProps<typeof AccordionTriggerVariants> {}
 
 const AccordionTrigger: React.FC<AccordionTriggerProps> = (props) => {
-  const { children, size } = props;
-  const { onValueChange, value } = useAccordionItemContext();
+  const { children, size, colors } = props;
+  const {
+    onValueChange,
+    value,
+    size: contextSize,
+    colors: contextColors,
+  } = useAccordionItemContext();
 
   return (
     <div
       onClick={() => {
         onValueChange?.(value);
       }}
-      className={cn(AccordionTriggerVariants({ size }))}
+      className={cn(
+        AccordionTriggerVariants({ size: size ?? contextSize, colors: colors ?? contextColors })
+      )}
     >
       {children}
     </div>

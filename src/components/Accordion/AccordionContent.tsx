@@ -10,7 +10,7 @@ interface AccordionContentProps
 
 const AccordionContent: React.FC<AccordionContentProps> = (props) => {
   const { children, size, className } = props;
-  const { collapsed } = useAccordionItemContext();
+  const { collapsed, size: contextSize } = useAccordionItemContext();
   const [contentHeight, setContentHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +33,7 @@ const AccordionContent: React.FC<AccordionContentProps> = (props) => {
         ['--content-height' as never]: `${contentHeight}px`,
       }}
     >
-      <div {...props} className={cn(AccordionContentVariants({ size }))}>
+      <div {...props} className={cn(AccordionContentVariants({ size: size ?? contextSize }))}>
         {children}
       </div>
     </div>
