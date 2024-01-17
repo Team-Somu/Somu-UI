@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import { cn } from '@service';
 import { AccordionTrigger, Accordion, AccordionContent, AccordionItem } from '@components';
+import { Alert, AlertClose, AlertContent, AlertTrigger } from './components/Alert';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -32,6 +33,17 @@ function App() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <Alert>
+        <AlertTrigger>
+          <button>open alert!</button>
+        </AlertTrigger>
+        <AlertContent className='py-2 px-4 w-40 bg-gray13 rounded-md'>
+          content~!!
+          <AlertClose>
+            <button>close</button>
+          </AlertClose>
+        </AlertContent>
+      </Alert>
       <div className='flex flex-col'>
         <div>
           <button onClick={() => setToggle((prev) => !prev)}>toggle</button>
