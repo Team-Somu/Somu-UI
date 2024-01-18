@@ -55,7 +55,7 @@ jobs:
 
     strategy:
       matrix:
-        JIRA_ISSUE_MATRIX: ${{ fromJSON(needs.issues_string_to_matrix.outputs.ISSUES_MATRIX) }}
+        JIRA_ISSUE_MATRIX: ${{ fromJSON(needs.jira_integration.outputs.ISSUES_MATRIX) }}
 
     steps:
       - name: jira-login
