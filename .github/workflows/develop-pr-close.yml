@@ -29,18 +29,18 @@ jobs:
       - name: show outputs
         id: b64
         run: |
-          echo "Issues found:  ${{steps.jira.outputs.issues}}"
+          echo "Issues found:  ${{steps.jira.outputs.issue}}"
           releasenotes=$(printf "Release notes:  \n${{steps.jira.outputs.notes}}" | base64)
           echo "::set-output name=notes::${releasenotes}"
       # 지라 트랜지션 전 Converting
       - id: transition_into_matrix
         run: |
-          echo "Issues found: ${{steps.jira.outputs.issues}}"
+          echo "Issues found: ${{steps.jira.outputs.issue}}"
           JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
           new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
           stringify='["'$new_string'"]'
           echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
-          echo "Issues found: ${{steps.jira.outputs.issues}}"
+          echo "Issues found: ${{steps.jira.outputs.issue}}"
       # 지라 트랜지션
       - name: jira-transition
         id: jira-transition
@@ -52,7 +52,7 @@ jobs:
     outputs:
       ISSUES_MATRIX: ${{ steps.transition_into_matrix.outputs.MATRIX }}
       notes: ${{steps.b64.outputs.notes}}
-      issues: ${{steps.jira.outputs.issues}}
+      issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
 
   send_slack_message:
