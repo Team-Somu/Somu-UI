@@ -29,7 +29,7 @@ jobs:
       - name: show outputs
         id: b64
         run: |
-          echo "Issues found:  ${{steps.jira.outputs.issue}}"
+          echo "Issues found:  ${{ steps.jira.outputs.issue }}"
           releasenotes=$(printf "Release notes:  \n${{steps.jira.outputs.notes}}" | base64)
           echo "::set-output name=notes::${releasenotes}"
       # 지라 트랜지션 전 Converting
