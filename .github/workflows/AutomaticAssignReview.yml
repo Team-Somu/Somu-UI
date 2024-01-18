@@ -63,7 +63,7 @@ jobs:
         uses: hkusu/review-assign-action@v1
         with:
           assignees: ${{ github.actor }} # assign pull request author
-          reviewers: slogup-any, lolrem # if draft, assigned when draft is released
+          reviewers: hyeongkyuPark, Y-jae-heon # if draft, assigned when draft is released
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -139,7 +139,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*리뷰어:* <@U030QH4SD16>, <@U0300RVPF9R>"
+                      "text": "*리뷰어:* hyeongkyuPark, Y-jae-heon"
                     },
                     {
                       "type": "mrkdwn",
