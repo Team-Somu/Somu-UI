@@ -23,17 +23,7 @@ jobs:
         uses: Broadshield/gajira-find-issue-key@master
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          from: pull_request
-          returns: all
-          include-merge-messages: true
-          generate-github-milestones: true
-          generate-github-issues: false
-          standardize-pr-title: true
-          jira-transition-on-new-branch: in progress
-          jira-transition-on-pr-open: code review
-          jira-transition-on-pr-approval: testing
-          jira-transition-on-pr-merge: testing
-          jira-transition-chain: triage,to do,solution review,in progress,code review,testing,closed
+          from: commits
       - name: show outputs
         id: b64
         run: |
@@ -41,12 +31,21 @@ jobs:
           echo "Issues found:  ${{steps.jira.outputs.issues}}"
           releasenotes=$(printf "Release notes:  \n${{steps.jira.outputs.notes}}" | base64)
           echo "::set-output name=notes::${releasenotes}"
+
+      - id: transition_into_matrix
+        run: |
+          JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
+          new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
+          stringify='["'$new_string'"]'
+          echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
+
       - name: jira-transition
         id: jira-transition
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ toJSON(steps.jira.outputs.issues) }}
+          issue: ${{ steps.transition_into_matrix.outputs.MATRIX }}
           transition: ${{ env.JIRA_TRANSITION_STATUS }}
+
     outputs:
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issues}}
