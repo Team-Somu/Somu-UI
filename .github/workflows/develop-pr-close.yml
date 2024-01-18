@@ -1,7 +1,9 @@
 name: Push - Jira Transition
 env:
   JIRA_TRANSITION_STATUS: '개발배포완료'
-on: push
+on:
+  push:
+    branches: ['develop']
 
 jobs:
   jira_integration:
@@ -20,9 +22,8 @@ jobs:
       - name: Get Jira Issues
         id: jira
         continue-on-error: true
-        uses: Broadshield/gajira-find-issue-key@master
+        uses: kherP/gajira-find-issue-key@master
         with:
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           from: commits
 
       - name: show outputs
@@ -34,18 +35,18 @@ jobs:
       # 지라 트랜지션 전 Converting
       - id: transition_into_matrix
         run: |
-          echo "Issues found: $steps.jira.outputs.issues"
+          echo "Issues found: ${{steps.jira.outputs.issues}}"
           JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
           new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
           stringify='["'$new_string'"]'
           echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
-          echo "Issues found: $steps.jira.outputs.issues"
+          echo "Issues found: ${{steps.jira.outputs.issues}}"
       # 지라 트랜지션
       - name: jira-transition
         id: jira-transition
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ toJSON(steps.transition_into_matrix.outputs.MATRIX) }}
+          issue: ${{ steps.transition_into_matrix.outputs.MATRIX }}
           transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     outputs:
