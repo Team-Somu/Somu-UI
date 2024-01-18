@@ -16,6 +16,8 @@ function App() {
     }
   }, [toggle]);
 
+  console.log('123');
+
   return (
     <>
       <Accordion type={'single'}>
