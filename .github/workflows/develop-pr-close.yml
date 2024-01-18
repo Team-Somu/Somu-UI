@@ -41,17 +41,17 @@ jobs:
           new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
           stringify='["'$new_string'"]'
           echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
-          echo "Issues found: $JIRA_ISSUE_MATRIX_RESOURCE"
+          echo "Issues found: $stringify"
       # 지라 트랜지션
       - name: jira-transition
         id: jira-transition
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
+          issue: ${{ steps.transition_into_matrix.outputs.MATRIX }}
           transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     outputs:
-      ISSUES_MATRIX: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
+      ISSUES_MATRIX: ${{ steps.transition_into_matrix.outputs.MATRIX }}
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
