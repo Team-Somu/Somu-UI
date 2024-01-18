@@ -24,20 +24,6 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           from: commits
-      # 지라 트랜지션 전 Converting
-      - id: transition_into_matrix
-        run: |
-          JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
-          new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
-          stringify='["'$new_string'"]'
-          echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
-      # 지라 트랜지션
-      - name: jira-transition
-        id: jira-transition
-        uses: atlassian/gajira-transition@v3
-        with:
-          issue: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
-          transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
       - name: show outputs
         id: b64
@@ -45,9 +31,24 @@ jobs:
           echo "Issues found:  ${{steps.jira.outputs.issues}}"
           releasenotes=$(printf "Release notes:  \n${{steps.jira.outputs.notes}}" | base64)
           echo "::set-output name=notes::${releasenotes}"
+      # 지라 트랜지션 전 Converting
+      - id: transition_into_matrix
+        run: |
+          JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
+          new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
+          stringify='["'$new_string'"]'
+          echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
+          echo "Issues found: $JIRA_ISSUE_MATRIX_RESOURCE"
+      # 지라 트랜지션
+      - name: jira-transition
+        id: jira-transition
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ toJSON(steps.transition_into_matrix.outputs.MATRIX) }}
+          transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     outputs:
-      ISSUES_MATRIX: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
+      ISSUES_MATRIX: ${{ steps.transition_into_matrix.outputs.MATRIX }}
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issues}}
       title: ${{steps.jira.outputs.title}}
