@@ -47,11 +47,11 @@ jobs:
         id: jira-transition
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ steps.transition_into_matrix.outputs.MATRIX }}
+          issue: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
           transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     outputs:
-      ISSUES_MATRIX: ${{ steps.transition_into_matrix.outputs.MATRIX }}
+      ISSUES_MATRIX: ${{ fromJSON(steps.transition_into_matrix.outputs.MATRIX) }}
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
