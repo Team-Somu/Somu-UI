@@ -49,7 +49,7 @@ jobs:
       issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
   transition_every_issue:
-    needs: issues_string_to_matrix
+    needs: jira_integration
 
     runs-on: ubuntu-latest
 
