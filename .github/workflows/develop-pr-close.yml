@@ -1,0 +1,132 @@
+name: Push - Jira Transition
+env:
+  JIRA_TRANSITION_STATUS: '개발배포완료'
+on: push
+
+jobs:
+  jira_integration:
+    runs-on: ubuntu-latest
+    env:
+      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout
+
+      - name: Atlassian Login
+        uses: atlassian/gajira-login@master
+
+      - name: Get Jira Issues
+        id: jira
+        continue-on-error: true
+        uses: Broadshield/gajira-find-issue-key@master
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          from: pull_request
+          returns: all
+          include-merge-messages: true
+          generate-github-milestones: true
+          generate-github-issues: false
+          standardize-pr-title: true
+          jira-transition-on-new-branch: in progress
+          jira-transition-on-pr-open: code review
+          jira-transition-on-pr-approval: testing
+          jira-transition-on-pr-merge: testing
+          jira-transition-chain: triage,to do,solution review,in progress,code review,testing,closed
+      - name: show outputs
+        id: b64
+        run: |
+          echo "PR Title found:  ${{steps.jira.outputs.title}}"
+          echo "Issues found:  ${{steps.jira.outputs.issues}}"
+          releasenotes=$(printf "Release notes:  \n${{steps.jira.outputs.notes}}" | base64)
+          echo "::set-output name=notes::${releasenotes}"
+      - name: jira-transition
+        id: jira-transition
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ toJSON(steps.jira.outputs.issues) }}
+          transition: ${{ env.JIRA_TRANSITION_STATUS }}
+    outputs:
+      notes: ${{steps.b64.outputs.notes}}
+      issues: ${{steps.jira.outputs.issues}}
+      title: ${{steps.jira.outputs.title}}
+
+  send_slack_message:
+    needs: [jira_integration]
+    runs-on: ubuntu-latest
+
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      JIRA_USERNAME: ${{ secrets.JIRA_USER_EMAIL }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_BOARD_URL: ${{ secrets.JIRA_BOARD_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - run: |
+          JIRA_ISSUE_RESOURCE=${{ toJSON(needs.jira_integration.outputs.issues) }}
+          new_string=$(echo "$JIRA_ISSUE_RESOURCE" | sed 's|,|  |g')
+          echo "JIRA_SINGLE_ISSUE_LIST=$new_string" >> $GITHUB_ENV
+
+      - name: Set environment variable
+        run: |
+          JIRA_ISSUE_LINK=""
+          for i in ${{ env.JIRA_SINGLE_ISSUE_LIST }}; do
+            url=${{ env.JIRA_BASE_URL }}/rest/api/latest/issue/${i}
+            response=$(curl -u "${{ env.JIRA_USERNAME }}:${{ env.JIRA_API_TOKEN }}" --silent $url)
+            echo $response
+            title="$(echo $response | jq -r '.fields.summary')"
+            echo $title
+            JIRA_ISSUE_LINK="$JIRA_ISSUE_LINK <${{ secrets.JIRA_BASE_URL }}/jira/software/projects/SG/boards/36/timeline?selectedIssue=${i}|${i}: ${title}>"
+            echo $JIRA_ISSUE_LINK
+          done
+          echo "JIRA_ISSUE_LINK=$JIRA_ISSUE_LINK" >> $GITHUB_ENV
+
+      - name: post message
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "개발배포 완료 :smile:",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "개발배포 완료 :smile:"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Jira 이슈 변동 여부*\n${{ needs.jira_integration.outputs.issues == '' && ':x:' || ':white_check_mark:'}} "
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*관련 Jira 이슈*\n${{ needs.jira_integration.outputs.issues != '' && env.JIRA_ISSUE_LINK || '없음' }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*<${{ env.JIRA_BOARD_URL }}|Jira로 이동 :runner:>*"
+                    }
+                  ]
+                }
+              ]
+            }
