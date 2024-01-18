@@ -16,7 +16,7 @@ function App() {
     }
   }, [toggle]);
 
-  console.log('1');
+  console.log('12');
 
   return (
     <>
