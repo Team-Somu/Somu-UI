@@ -34,11 +34,12 @@ jobs:
       # 지라 트랜지션 전 Converting
       - id: transition_into_matrix
         run: |
+          echo "Issues found: $steps.jira.outputs.issues"
           JIRA_ISSUE_MATRIX_RESOURCE=${{ toJSON(steps.jira.outputs.issues) }}
           new_string=$(echo "$JIRA_ISSUE_MATRIX_RESOURCE" | sed 's|;|", "|g')
           stringify='["'$new_string'"]'
           echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
-          echo "Issues found: $JIRA_ISSUE_MATRIX_RESOURCE"
+          echo "Issues found: $steps.jira.outputs.issues"
       # 지라 트랜지션
       - name: jira-transition
         id: jira-transition
