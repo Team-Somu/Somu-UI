@@ -42,20 +42,38 @@ jobs:
           stringify='["'$new_string'"]'
           echo "MATRIX=$stringify" >> $GITHUB_OUTPUT
           echo "Issues found: $stringify"
-      # 지라 트랜지션
-      - name: jira-transition
-        id: jira-transition
-        uses: atlassian/gajira-transition@v3
-        with:
-          issue: ${{ steps.transition_into_matrix.outputs.MATRIX }}
-          transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     outputs:
       ISSUES_MATRIX: ${{ steps.transition_into_matrix.outputs.MATRIX }}
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
+  transition_every_issue:
+    needs: issues_string_to_matrix
 
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        JIRA_ISSUE_MATRIX: ${{ fromJSON(needs.issues_string_to_matrix.outputs.ISSUES_MATRIX) }}
+
+    steps:
+      - name: jira-login
+        uses: atlassian/gajira-login@v3
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+      - name: transition every issue
+        id: transition
+
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ matrix.JIRA_ISSUE_MATRIX }}
+          transition: ${{ env.JIRA_TRANSITION_STATUS }}
+
+    continue-on-error: true
   send_slack_message:
     needs: [jira_integration]
     runs-on: ubuntu-latest
