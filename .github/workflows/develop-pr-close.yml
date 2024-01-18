@@ -48,9 +48,9 @@ jobs:
       notes: ${{steps.b64.outputs.notes}}
       issues: ${{steps.jira.outputs.issue}}
       title: ${{steps.jira.outputs.title}}
-  transition_every_issue:
-    needs: jira_integration
 
+  transition_every_issue:
+    needs: [jira_integration]
     runs-on: ubuntu-latest
 
     strategy:
@@ -74,6 +74,7 @@ jobs:
           transition: ${{ env.JIRA_TRANSITION_STATUS }}
 
     continue-on-error: true
+
   send_slack_message:
     needs: [jira_integration]
     runs-on: ubuntu-latest
@@ -92,7 +93,7 @@ jobs:
 
       - run: |
           JIRA_ISSUE_RESOURCE=${{ toJSON(needs.jira_integration.outputs.issues) }}
-          new_string=$(echo "$JIRA_ISSUE_RESOURCE" | sed 's|,|  |g')
+          new_string=$(echo "$JIRA_ISSUE_RESOURCE" | sed 's|;|  |g')
           echo "JIRA_SINGLE_ISSUE_LIST=$new_string" >> $GITHUB_ENV
 
       - name: Set environment variable
