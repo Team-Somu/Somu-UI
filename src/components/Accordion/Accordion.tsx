@@ -2,19 +2,28 @@
 import React, { useState } from 'react';
 import type { ComponentProps, FC } from 'react';
 import { AccordionContext } from './AccordionContext';
-export interface AccordionProps extends ComponentProps<'div'> {
+import { VariantProps } from 'class-variance-authority';
+import {
+  AccordionContentVariants,
+  AccordionItemVariants,
+  AccordionTriggerVariants,
+} from './variants';
+export interface AccordionProps
+  extends ComponentProps<'div'>,
+    VariantProps<typeof AccordionItemVariants>,
+    VariantProps<typeof AccordionTriggerVariants>,
+    VariantProps<typeof AccordionContentVariants> {
   arrowIcon?: FC<ComponentProps<'svg'>>;
   type?: 'single' | 'multiple';
-  handleItemOpen?(value: string[] | string): void;
-  handleItemClose?(value: string[] | string): void;
-  value?: string[] | string;
+  // value?: string[] | string;
+  defaultValue?: string;
 }
 
 const Accordion: React.FC<AccordionProps> = (props) => {
   const { children, type, ...accordionProps } = props;
 
   const [value, setValue] = useState<string[] | string>(
-    props?.value ? props?.value : type === 'multiple' ? [] : ''
+    props?.defaultValue ? (type === 'multiple' ? [props?.defaultValue] : props.defaultValue) : ''
   );
 
   const handleItemOpen = React.useCallback(
@@ -49,7 +58,11 @@ const Accordion: React.FC<AccordionProps> = (props) => {
     handleItemClose,
   };
 
-  return <AccordionContext.Provider value={provider}>{children}</AccordionContext.Provider>;
+  return (
+    <AccordionContext.Provider value={provider}>
+      <div id='accordion'>{children}</div>
+    </AccordionContext.Provider>
+  );
 };
 
 export default Accordion;
