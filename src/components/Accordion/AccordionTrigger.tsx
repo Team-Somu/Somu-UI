@@ -1,8 +1,8 @@
 import React, { HTMLAttributes } from 'react';
-import { cn } from '@/service';
 import { AccordionTriggerVariants } from './variants';
 import { VariantProps } from 'class-variance-authority';
 import { useAccordionItemContext } from './AccordionItemContext';
+import { cn } from '@service';
 
 export interface AccordionTriggerProps
   extends HTMLAttributes<HTMLDivElement>,

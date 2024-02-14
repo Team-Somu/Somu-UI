@@ -60,7 +60,7 @@ const Accordion: React.FC<AccordionProps> = (props) => {
 
   return (
     <AccordionContext.Provider value={provider}>
-      <div>{children}</div>
+      <div id='accordion'>{children}</div>
     </AccordionContext.Provider>
   );
 };

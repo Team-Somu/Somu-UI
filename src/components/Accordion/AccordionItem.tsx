@@ -22,7 +22,7 @@ export interface AccordionItemProps
   onValueChange?(value: string): void;
 }
 
-const AccordionItem = React.forwardRef<AccordionEl, AccordionItemProps>((props) => {
+const AccordionItem = React.forwardRef<AccordionEl, AccordionItemProps>((props, ref) => {
   const { children, value: propsValue, rounded, ...accordionProps } = props;
   const {
     type,
@@ -72,7 +72,11 @@ const AccordionItem = React.forwardRef<AccordionEl, AccordionItemProps>((props) 
   };
   return (
     <AccordionItemContext.Provider value={provider}>
-      <div className={cn(AccordionItemVariants({ rounded: rounded ?? contextRounded }))}>
+      <div
+        id='accordion-item'
+        ref={ref}
+        className={cn(AccordionItemVariants({ rounded: rounded ?? contextRounded }))}
+      >
         {children}
       </div>
     </AccordionItemContext.Provider>
