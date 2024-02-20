@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
@@ -17,5 +18,10 @@ export default defineConfig({
         replacement: resolve(__dirname, 'src/service'),
       },
     ],
+  },
+  test: {
+    globals: true,
+    setupFiles: './jest.setup.ts',
+    environment: 'jsdom',
   },
 });
